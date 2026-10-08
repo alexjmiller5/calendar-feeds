@@ -1,0 +1,13 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "calendar-feeds",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-10-01",
+	"workers_dev": true,
+	"preview_urls": false,
+	"observability": { "enabled": true },
+	// Hourly Google Calendar push (no-op until the Google OAuth secrets exist).
+	"triggers": { "crons": ["0 * * * *"] },
+	// Google calendar ids, one key per feed. Created by scripts/cf-kv.py.
+	"kv_namespaces": [{ "binding": "STATE", "id": "c0ff8a286dd848a399ad07a897c5f854" }]
+}

@@ -1,0 +1,5 @@
+# Package Managers
+bun.lock
+
+# Generated (wrangler types rewrites it during `just check`)
+worker-configuration.d.ts
