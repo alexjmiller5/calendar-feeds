@@ -59,6 +59,9 @@ scripts/cf-kv.py         ensures the KV namespace declared in wrangler.jsonc exi
 
 ## Gotchas
 
+- `global_fetch_strictly_public` in `wrangler.jsonc` is load-bearing: the
+  Life Data hub is a workers.dev Worker on the same account, and without it
+  every hub fetch fails with Cloudflare error 1042.
 - A `CHANGEME` Google field disables the cron push; it never errors.
 - Secrets reach the Worker only on deploy. After editing the ENV item, run
   `gh workflow run deploy.yml`.

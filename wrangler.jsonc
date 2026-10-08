@@ -3,6 +3,9 @@
 	"name": "calendar-feeds",
 	"main": "src/index.ts",
 	"compatibility_date": "2026-10-01",
+	// The Life Data hub is another workers.dev Worker on the same account; without
+	// this flag fetch() to it fails with error 1042.
+	"compatibility_flags": ["global_fetch_strictly_public"],
 	"workers_dev": true,
 	"preview_urls": false,
 	"observability": { "enabled": true },
