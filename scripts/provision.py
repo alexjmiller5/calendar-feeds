@@ -7,8 +7,8 @@
 The provisioning credential only mints replacements. Save the new value,
 deploy and verify before retiring the previous token by its provider ID.
 
-LIFE_HUB_URL and LIFE_HUB_TOKEN need the `life` CLI to run with operator
-authority (its usual LIFE_HUB_URL / LIFE_HUB_TOKEN environment).
+SOMA_HUB_URL and SOMA_HUB_TOKEN need the `soma` CLI to run with operator
+authority (its usual SOMA_HUB_URL / SOMA_HUB_TOKEN environment).
 """
 
 import json
@@ -23,7 +23,7 @@ import httpx
 NAME = "calendar-feeds"
 OP_CF_TOKEN = "op://4eeyrkqibibn7k4j6rz2fbzvxm/mxxpo6neiz3grdyrjj7rv7nume/credential"
 FEED_TOKENS = ["FEED_TOKEN_TASKS", "FEED_TOKEN_TRIPS", "FEED_TOKEN_EVENTS"]
-FIELDS = ["api-token", "account-id", "LIFE_HUB_URL", "LIFE_HUB_TOKEN", *FEED_TOKENS]
+FIELDS = ["api-token", "account-id", "SOMA_HUB_URL", "SOMA_HUB_TOKEN", *FEED_TOKENS]
 # Exactly the columns the Worker reads (FEEDS in src/index.ts; a test keeps them equal).
 COLUMNS = {
     "tasks": ["id", "title", "status", "due_date", "updated_at", "deleted_at"],
@@ -123,29 +123,29 @@ def deployment_account() -> str:
 
 
 def hub_url() -> str:
-    if value := os.environ.get("LIFE_HUB_URL"):
+    if value := os.environ.get("SOMA_HUB_URL"):
         return value
-    raise RuntimeError("Set LIFE_HUB_URL to the Life Data hub the Worker reads")
+    raise RuntimeError("Set SOMA_HUB_URL to the Soma hub the Worker reads")
 
 
 def mint_hub_token() -> str:
     """A new, separately revocable token per mint; earlier ones stay active until retired."""
     name = f"{NAME}-{uuid4().hex[:8]}"
     out = subprocess.run(
-        ["life", "token", "create", name, "--scopes", SCOPES],
+        ["soma", "token", "create", name, "--scopes", SCOPES],
         capture_output=True,
         text=True,
         check=True,
     ).stdout
-    log(f"Minted Life Data token {name}")
+    log(f"Minted Soma token {name}")
     return json.loads(out)["token"]
 
 
 MINTERS = {
     "api-token": mint_deploy_token,
     "account-id": deployment_account,
-    "LIFE_HUB_URL": hub_url,
-    "LIFE_HUB_TOKEN": mint_hub_token,
+    "SOMA_HUB_URL": hub_url,
+    "SOMA_HUB_TOKEN": mint_hub_token,
     **{field: lambda: secrets.token_urlsafe(32) for field in FEED_TOKENS},
 }
 

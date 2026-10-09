@@ -9,8 +9,8 @@ import {
 
 type AppEnv = Env &
 	GoogleSecrets & {
-		LIFE_HUB_URL: string;
-		LIFE_HUB_TOKEN: string;
+		SOMA_HUB_URL: string;
+		SOMA_HUB_TOKEN: string;
 		FEED_TOKEN_TASKS: string;
 		FEED_TOKEN_TRIPS: string;
 		FEED_TOKEN_EVENTS: string;
@@ -24,7 +24,7 @@ type Feed = {
 	token: 'FEED_TOKEN_TASKS' | 'FEED_TOKEN_TRIPS' | 'FEED_TOKEN_EVENTS';
 };
 
-// Columns are exactly the Life Data read grant (see AGENTS.md).
+// Columns are exactly the Soma read grant (see AGENTS.md).
 const FEEDS: Record<string, Feed> = {
 	tasks: {
 		name: 'Tasks',
@@ -65,10 +65,10 @@ async function pullRows(env: AppEnv, feed: Feed) {
 	const rows: Row[] = [];
 	let after: string | undefined;
 	do {
-		const res = await fetch(`${env.LIFE_HUB_URL.replace(/\/$/, '')}/v1/rows/pull`, {
+		const res = await fetch(`${env.SOMA_HUB_URL.replace(/\/$/, '')}/v1/rows/pull`, {
 			method: 'POST',
 			headers: {
-				authorization: `Bearer ${env.LIFE_HUB_TOKEN}`,
+				authorization: `Bearer ${env.SOMA_HUB_TOKEN}`,
 				'content-type': 'application/json'
 			},
 			body: JSON.stringify({
@@ -79,7 +79,7 @@ async function pullRows(env: AppEnv, feed: Feed) {
 			})
 		});
 		if (!res.ok)
-			throw new Error(`Life Data pull ${feed.table} failed: ${res.status} ${await res.text()}`);
+			throw new Error(`Soma pull ${feed.table} failed: ${res.status} ${await res.text()}`);
 		const page = (await res.json()) as { rows: Row[]; next_cursor: string | null };
 		rows.push(...page.rows);
 		after = page.next_cursor ?? undefined;

@@ -107,8 +107,8 @@ class AppSecretsTest(unittest.TestCase):
                 "FEED_TOKEN_TASKS",
                 "FEED_TOKEN_TRIPS",
                 "FEED_TOKEN_EVENTS",
-                "LIFE_HUB_URL",
-                "LIFE_HUB_TOKEN",
+                "SOMA_HUB_URL",
+                "SOMA_HUB_TOKEN",
             }
             <= set(provision.FIELDS)
         )
@@ -120,23 +120,23 @@ class AppSecretsTest(unittest.TestCase):
 
     def test_hub_url_comes_from_the_operator_environment(self):
         with patch.dict(
-            os.environ, {"LIFE_HUB_URL": "https://hub.example"}, clear=True
+            os.environ, {"SOMA_HUB_URL": "https://hub.example"}, clear=True
         ):
-            self.assertEqual(provision.MINTERS["LIFE_HUB_URL"](), "https://hub.example")
+            self.assertEqual(provision.MINTERS["SOMA_HUB_URL"](), "https://hub.example")
         with (
             patch.dict(os.environ, {}, clear=True),
-            self.assertRaisesRegex(RuntimeError, "LIFE_HUB_URL"),
+            self.assertRaisesRegex(RuntimeError, "SOMA_HUB_URL"),
         ):
-            provision.MINTERS["LIFE_HUB_URL"]()
+            provision.MINTERS["SOMA_HUB_URL"]()
 
     def test_hub_token_is_a_new_exact_column_read_grant(self):
         done = subprocess.CompletedProcess(
             [], 0, stdout=json.dumps({"token": "lt_fixture"})
         )
         with patch.object(provision.subprocess, "run", return_value=done) as run:
-            self.assertEqual(provision.MINTERS["LIFE_HUB_TOKEN"](), "lt_fixture")
+            self.assertEqual(provision.MINTERS["SOMA_HUB_TOKEN"](), "lt_fixture")
         args = run.call_args.args[0]
-        self.assertEqual(args[:3], ["life", "token", "create"])
+        self.assertEqual(args[:3], ["soma", "token", "create"])
         self.assertRegex(args[3], r"^calendar-feeds-[0-9a-f]{8}$")
         self.assertEqual(args[4:], ["--scopes", provision.SCOPES])
         self.assertTrue(

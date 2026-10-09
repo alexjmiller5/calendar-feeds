@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Calendar Feeds: one Cloudflare Worker that turns Life Data rows (tasks,
+Calendar Feeds: one Cloudflare Worker that turns Soma rows (tasks,
 trips, calendar events) into three iCalendar feeds and mirrors them, one
 way, into three Google calendars. README.md has the user-facing behavior.
 
@@ -10,7 +10,7 @@ way, into three Google calendars. README.md has the user-facing behavior.
 src/feeds.ts      pure: eligibility rules, row -> event, RFC 5545 builder
 src/google.ts     Google: event id derivation, upsert diff, fetch-based client
 src/index.ts      Worker: feed routes (token check, Cache API) + hourly cron
-scripts/provision.py     bootstrap minters (CF deploy token, Life Data token, feed tokens)
+scripts/provision.py     bootstrap minters (CF deploy token, Soma token, feed tokens)
 scripts/google-oauth.py  one-time consent flow printing the Google refresh token
 scripts/cf-kv.py         ensures the KV namespace declared in wrangler.jsonc exists
 ```
@@ -31,7 +31,7 @@ scripts/cf-kv.py         ensures the KV namespace declared in wrangler.jsonc exi
 
 ## Approved boundary (shared nothing)
 
-- Life Data is reached only through its hub API with this project's own
+- Soma is reached only through its hub API with this project's own
   token, named `calendar-feeds-<8 hex>` (current: `calendar-feeds-7e1d279b`).
   Its grant is exact read-only columns, `tables:read:<table>:<col>` for:
   - `tasks`: id, title, status, due_date, updated_at, deleted_at
@@ -40,12 +40,12 @@ scripts/cf-kv.py         ensures the KV namespace declared in wrangler.jsonc exi
 
   These lists are `FEEDS` in `src/index.ts` and `COLUMNS` in
   `scripts/provision.py`; a test keeps them equal. A new column means a new
-  token: mint with `provision.py --field LIFE_HUB_TOKEN` (operator authority
-  for the `life` CLI), store it, deploy, verify, then `life token revoke`
+  token: mint with `provision.py --field SOMA_HUB_TOKEN` (operator authority
+  for the `soma` CLI), store it, deploy, verify, then `soma token revoke`
   the old name.
 
-- No D1/R2/KV bindings of Life Data or any other project, no writes
-  anywhere in Life Data, no Cloudflare Access (the feed token in the URL is
+- No D1/R2/KV bindings of Soma or any other project, no writes
+  anywhere in Soma, no Cloudflare Access (the feed token in the URL is
   the auth; there are no admin routes).
 
 ## Conventions
@@ -60,7 +60,7 @@ scripts/cf-kv.py         ensures the KV namespace declared in wrangler.jsonc exi
 ## Gotchas
 
 - `global_fetch_strictly_public` in `wrangler.jsonc` is load-bearing: the
-  Life Data hub is a workers.dev Worker on the same account, and without it
+  Soma hub is a workers.dev Worker on the same account, and without it
   every hub fetch fails with Cloudflare error 1042.
 - A `CHANGEME` Google field disables the cron push; it never errors.
 - Secrets reach the Worker only on deploy. After editing the ENV item, run

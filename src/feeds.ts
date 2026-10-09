@@ -1,4 +1,4 @@
-// Life Data rows -> calendar events -> RFC 5545 text. Pure functions only.
+// Soma rows -> calendar events -> RFC 5545 text. Pure functions only.
 
 export type Row = Record<string, any>;
 

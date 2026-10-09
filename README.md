@@ -1,14 +1,14 @@
 # Calendar Feeds
 
-Three read-only calendars built from Life Data - **Tasks**, **Trips** and
-**Events** - served as iCalendar feeds and pushed into Google Calendar. Life
+Three read-only calendars built from Soma - **Tasks**, **Trips** and
+**Events** - served as iCalendar feeds and pushed into Google Calendar. Soma
 Data owns every entry; calendars only display them, and nothing is ever
 written back.
 
 One Cloudflare Worker does both jobs:
 
 - `GET /feeds/{tasks,trips,events}.ics?token=<feed token>` returns RFC 5545
-  text (America/New_York VTIMEZONE, `UID` = Life Data row id, `DTSTAMP` = the
+  text (America/New_York VTIMEZONE, `UID` = Soma row id, `DTSTAMP` = the
   row's `updated_at`), cached for 5 minutes.
 - An hourly Cron Trigger mirrors the same events into three Google calendars
   it created, once the Google OAuth secrets exist.
@@ -21,7 +21,7 @@ One Cloudflare Worker does both jobs:
 | Trips    | `trips`           | every status except Canceled, with a start date                                       | all-day from `start_on` through `end_on`; location = cities, else countries          |
 | Events   | `calendar_events` | every status except Canceled, with a date or start time                               | timed when `start_at` is set (end defaults to one hour), otherwise all-day on `date` |
 
-Deleted rows never appear. The Tasks feed stays empty until Life Data's
+Deleted rows never appear. The Tasks feed stays empty until Soma's
 `tasks` table takes over from the current task workflow.
 
 ## Subscribe to a feed
@@ -47,7 +47,7 @@ treat a feed URL like a password.
 Every hour the Worker refreshes a Google access token, creates any of the
 three calendars it has not created yet (their ids live in the Worker's KV
 namespace), and upserts each qualifying row as an event whose id is the
-base32hex encoding of the Life Data row id. Events whose rows stop
+base32hex encoding of the Soma row id. Events whose rows stop
 qualifying are deleted. The OAuth scope is `calendar.app.created`, so the
 app can only see calendars it created. Edits made in Google are overwritten
 on the next run.

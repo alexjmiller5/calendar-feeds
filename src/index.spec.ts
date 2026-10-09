@@ -29,8 +29,8 @@ function kv() {
 function makeEnv(google = false) {
 	return {
 		STATE: kv(),
-		LIFE_HUB_URL: 'https://hub.test',
-		LIFE_HUB_TOKEN: 'life-token',
+		SOMA_HUB_URL: 'https://hub.test',
+		SOMA_HUB_TOKEN: 'life-token',
 		FEED_TOKEN_TASKS: 'tasks-token',
 		FEED_TOKEN_TRIPS: 'trips-token',
 		FEED_TOKEN_EVENTS: 'events-token',
@@ -49,7 +49,7 @@ function ctx() {
 	} as any;
 }
 
-// One fake upstream for the Life Data hub, Google OAuth and Google Calendar.
+// One fake upstream for the Soma hub, Google OAuth and Google Calendar.
 async function upstream(input: RequestInfo | URL, init?: RequestInit) {
 	const request = new Request(input, init);
 	const text = await request.text();

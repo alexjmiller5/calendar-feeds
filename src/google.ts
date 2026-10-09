@@ -125,7 +125,7 @@ export async function ensureCalendar(
 			summary: name,
 			timeZone: TZ,
 			description:
-				'Read-only mirror of Life Data, managed by Calendar Feeds. Edits here are overwritten.'
+				'Read-only mirror of Soma, managed by Calendar Feeds. Edits here are overwritten.'
 		}),
 		`create calendar ${name}`
 	);
