@@ -4,8 +4,8 @@
 # Push to CF:     just sync-secrets (CI does this on every deploy)
 
 # Soma hub and this app's exact-column read token (minted by scripts/provision.py)
-SOMA_HUB_URL=op://Calendar Feeds/Calendar Feeds ENV/LIFE_HUB_URL
-SOMA_HUB_TOKEN=op://Calendar Feeds/Calendar Feeds ENV/LIFE_HUB_TOKEN
+SOMA_HUB_URL=op://Calendar Feeds/Calendar Feeds ENV/SOMA_HUB_URL
+SOMA_HUB_TOKEN=op://Calendar Feeds/Calendar Feeds ENV/SOMA_HUB_TOKEN
 
 # One random token per feed URL (minted by scripts/provision.py)
 FEED_TOKEN_TASKS=op://Calendar Feeds/Calendar Feeds ENV/FEED_TOKEN_TASKS
