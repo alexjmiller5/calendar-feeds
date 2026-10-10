@@ -65,11 +65,14 @@ async function upstream(input: RequestInfo | URL, init?: RequestInit) {
 	const json = (data: unknown, status = 200) => Response.json(data, { status });
 
 	if (url.host === 'hub.test' && url.pathname === '/v1/rows/pull') {
-		// Two-row pages so pagination is exercised.
-		const rows = hubRows[body.table] ?? [];
-		const start = body.after ? rows.findIndex((r) => r.id === body.after) + 1 : 0;
+		// A batched pull; two-row pages so pagination is exercised.
+		const [pull] = body.batch;
+		const rows = hubRows[pull.table] ?? [];
+		const start = pull.after ? rows.findIndex((r) => r.id === pull.after) + 1 : 0;
 		const page = rows.slice(start, start + 2);
-		return json({ rows: page, next_cursor: start + 2 < rows.length ? page.at(-1).id : null });
+		return json({
+			batch: [{ rows: page, next_cursor: start + 2 < rows.length ? page.at(-1).id : null }]
+		});
 	}
 	if (url.host === 'oauth2.googleapis.com') return json({ access_token: 'access' });
 	if (url.pathname === '/calendar/v3/calendars' && request.method === 'POST')
@@ -119,15 +122,20 @@ describe('feed routes', () => {
 		expect(res.headers.get('content-type')).toBe('text/calendar; charset=utf-8');
 		const body = await res.text();
 		expect(body.match(/^UID:.*$/gm)).toEqual(['UID:a', 'UID:b', 'UID:c']);
-		expect(calls.map((c) => c.body.after ?? null)).toEqual([null, 'b']);
+		expect(calls.map((c) => c.body.batch[0].after ?? null)).toEqual([null, 'b']);
 		expect(calls[0]).toMatchObject({
 			method: 'POST',
 			url: 'https://hub.test/v1/rows/pull',
 			auth: 'Bearer life-token',
 			body: {
-				table: 'tasks',
-				limit: 200,
-				columns: ['id', 'title', 'status', 'due_date', 'updated_at', 'deleted_at']
+				batch: [
+					{
+						table: 'tasks',
+						since: '',
+						limit: 5000,
+						columns: ['id', 'title', 'status', 'due_date', 'updated_at', 'deleted_at']
+					}
+				]
 			}
 		});
 	});

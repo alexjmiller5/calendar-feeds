@@ -61,6 +61,10 @@ const FEEDS: Record<string, Feed> = {
 
 const unset = (value: string | undefined) => !value || value === 'CHANGEME';
 
+// A batched pull answers up to 5,000 rows (the hub's batch budget), so a feed
+// is one or two requests instead of a 200-row page walk.
+const BATCH_ROWS = 5000;
+
 async function pullRows(env: AppEnv, feed: Feed) {
 	const rows: Row[] = [];
 	let after: string | undefined;
@@ -72,15 +76,22 @@ async function pullRows(env: AppEnv, feed: Feed) {
 				'content-type': 'application/json'
 			},
 			body: JSON.stringify({
-				table: feed.table,
-				columns: feed.columns,
-				limit: 200,
-				...(after ? { after } : {})
+				batch: [
+					{
+						table: feed.table,
+						columns: feed.columns,
+						since: '',
+						limit: BATCH_ROWS,
+						...(after ? { after } : {})
+					}
+				]
 			})
 		});
 		if (!res.ok)
 			throw new Error(`Soma pull ${feed.table} failed: ${res.status} ${await res.text()}`);
-		const page = (await res.json()) as { rows: Row[]; next_cursor: string | null };
+		const [page] = (
+			(await res.json()) as { batch: Array<{ rows: Row[]; next_cursor: string | null }> }
+		).batch;
 		rows.push(...page.rows);
 		after = page.next_cursor ?? undefined;
 	} while (after);

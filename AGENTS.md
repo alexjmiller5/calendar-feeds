@@ -67,6 +67,8 @@ scripts/cf-kv.py         ensures the KV namespace declared in wrangler.jsonc exi
   `gh workflow run deploy.yml`.
 - The Cache API is documented as functional on custom domains; on
   workers.dev a miss simply reads the hub again (responses still carry
-  `Cache-Control: max-age=300` for clients).
+  `Cache-Control: max-age=300` for clients). Each read is a batched pull of
+  up to 5,000 rows, so a feed costs one or two hub requests. Incremental
+  reads (Soma's table-pull helper) would need `hub_at` in the token's grant.
 - `op-project-bootstrap` prompts with `getpass`, which flushes piped input;
   answer its `GOOGLE_*` prompts interactively (or with `expect`).
